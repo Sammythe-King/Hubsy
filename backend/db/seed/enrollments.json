@@ -1,0 +1,18 @@
+[
+  {
+    "_id": "64f1e5b5f2d1c4a9a0b1f101",
+    "user_id": "64f1e4a2f2d1c4a9a0b1f001",
+    "course_id": "64f1e3c8f2d1c4a9a0b1e001",
+    "student_name": "John Doe",
+    "enrolled_on": "2025-11-11T00:00:00.000Z",
+    "status": "active"
+  },
+  {
+    "_id": "64f1e5b5f2d1c4a9a0b1f102",
+    "user_id": "64f1e4a2f2d1c4a9a0b1f002",
+    "course_id": "64f1e3c8f2d1c4a9a0b1e002",
+    "student_name": "Mark Smith",
+    "enrolled_on": "2025-11-11T00:00:00.000Z",
+    "status": "active"
+  }
+]

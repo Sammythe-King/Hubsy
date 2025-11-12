@@ -38,11 +38,18 @@
 
 <script setup>
 import { ref } from 'vue'
+import deadlineIcon from '@/assets/deadline.png'
+import thumbs from '@/assets/thumbs-up.png'
+import time from '@/assets/24-7.png'
+import account from '@/assets/add.png'
+import plane from '@/assets/paper-plane.png'
+import learn from '@/assets/library.png'
+
 
 // ======= Hero section =======
 const hero = ref({
   title: 'Welcome to Hubsy!',
-  text: 'Your platform for amazing solutions.',
+  text: 'Your all-in-one Hub for After-School Learning',
   backgroundImage: '@/assets/hero-bg.jpg' // change to your image
 })
 
@@ -51,17 +58,17 @@ const whyHubsy = ref({
   title: 'Why Choose Hubsy?',
   reasons: [
     {
-      icon: '@/assets/icon1.png',
+      icon: deadlineIcon,
       title: 'Fast & Reliable',
       text: 'Get things done quickly without hassle.'
     },
     {
-      icon: '@/assets/icon2.png',
+      icon: thumbs,
       title: 'Easy to Use',
       text: 'User-friendly interface for everyone.'
     },
     {
-      icon: '@/assets/icon3.png',
+      icon: time,
       title: '24/7 Support',
       text: 'We are always here to help you.'
     }
@@ -73,19 +80,20 @@ const howItWorks = ref({
   title: 'How it Works',
   steps: [
     {
-      icon: '@/assets/step1.png',
+      icon: account,
       title: 'Sign Up',
       text: 'Create an account in just a few steps.'
     },
     {
-      icon: '@/assets/step2.png',
+      icon: plane,
       title: 'Choose a Plan',
-      text: 'Select the plan that fits your needs.'
+      text: 'Browse a wide range of after-school activities, and find what fits you.'
     },
+    
     {
-      icon: '@/assets/step3.png',
-      title: 'Start Using Hubsy',
-      text: 'Enjoy all the benefits and features.'
+      icon: learn,
+      title: 'Learn and Grow',
+      text: 'Enjoy engaging, high-quality lessons designed to build new skills, confidence, and creativity beyond the classroom.'
     }
   ]
 })
@@ -102,42 +110,57 @@ const howItWorks = ref({
   height: 600px;
   background: url('@/assets/college.jpg') center/cover no-repeat;
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: flex-start; /* moves content to the left */
+  padding-left: 10%; /* breathing room from edge */
+  overflow: hidden;
 
 }
 
-.hero-section::before {
+.hero-section::after {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* adjust opacity (0.5 = 50% dark) */
   z-index: 1;
+  background-color: rgba(0, 0, 0, 0.35); /* adjust opacity (0.5 = 50% dark) */
+  
 }
 
 .hero-box {
-  background-color: rgba(255, 255, 255, 0.85);
-  padding: 2rem;
-  border-radius: 20px;
-  text-align: center;
-  max-width: 500px;
+  position: relative;
+  z-index: 2;
+  color: #f1f1f1; /* soft white — easy on the eyes */
+  max-width: 1000px;
 }
 
 .hero-box h1 {
+  font-size: 6rem;
+  font-weight: 700;
   margin-bottom: 1rem;
-  font-size: 2rem;
+  line-height: 1.1;
+  color: #ffffff; /* pure white for clarity */
+
 }
 
 .hero-box p {
-  font-size: 1rem;
+  font-size: 2rem;
+  color: #dcdcdc; /* soft gray for contrast */
+  max-width: 800px;
+  line-height: 1.6;
+  margin-top: 0px;
+  padding-top: 0px;
+  font-style: italic;
+
 }
+
+
 
 /* ======= Section 2: Why Hubsy ======= */
 .why-hubsy {
-  padding: 4rem 2rem;
+  padding: 2rem 2rem;
   text-align: center;
   background-color: #f5f5f5;
 }
@@ -162,8 +185,8 @@ const howItWorks = ref({
 }
 
 .reason img {
-  height: 60px;
-  margin-bottom: 1rem;
+  height: 80px;
+  margin-bottom: 5px;
 }
 
 /* ======= Section 3: How it Works ======= */
@@ -192,7 +215,9 @@ const howItWorks = ref({
 }
 
 .step img {
-  height: 60px;
+  height: 80px;
   margin-bottom: 1rem;
+  color: black;
+  filter: brightness(0) saturate(100%); /* turns icon completely black */
 }
 </style>

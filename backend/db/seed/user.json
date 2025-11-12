@@ -1,0 +1,22 @@
+[
+  {
+    "_id": "64f1e4a2f2d1c4a9a0b1f001",
+    "name": "Jane Doe",
+    "email": "jane@example.com",
+    "role": "parent",
+    "children": [
+      { "name": "John Doe", "age": 12 }
+    ],
+    "password": "hashed_password_here",
+    "created_at": "2025-11-11T00:00:00.000Z"
+  },
+  {
+    "_id": "64f1e4a2f2d1c4a9a0b1f002",
+    "name": "Mark Smith",
+    "email": "mark@example.com",
+    "role": "student",
+    "children": [],
+    "password": "hashed_password_here",
+    "created_at": "2025-11-11T00:00:00.000Z"
+  }
+]

@@ -1,12 +1,16 @@
 <script setup>
 import Header from './components/header.vue'
 import MainContent from './components/maincontent.vue'
+import Footer from './components/footer.vue';
 
 </script>
 
 <template>
   <Header />
-  <MainContent />
+  <router-view />
+  <Footer />
+
+
 
 </template>
 
