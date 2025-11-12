@@ -75,7 +75,7 @@
                   <circle cx="12" cy="12" r="10"></circle>
                   <polyline points="12 6 12 12 16 14"></polyline>
                 </svg>
-                <span>{{ lesson.nextSession || 'TBD' }}</span>
+                <span>{{ lesson.sessions_per_week }}x/week</span>
               </div>
               <div class="info-item">
                 <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -83,20 +83,20 @@
                   <circle cx="19" cy="12" r="1"></circle>
                   <circle cx="5" cy="12" r="1"></circle>
                 </svg>
-                <span>{{ lesson.frequency || 'Self-paced' }}</span>
+                <span>{{ lesson.duration_weeks }} weeks</span>
               </div>
               <div class="info-item">
                 <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                   <circle cx="12" cy="7" r="4"></circle>
                 </svg>
-                <span>{{ lesson.instructor || 'Staff' }}</span>
+                <span>{{ lesson.teacher }}</span>
               </div>
             </div>
 
             <!-- Buttons -->
             <div class="lesson-buttons">
-              <button class="btn btn-primary">View Details</button>
+              <button @click="viewCourseDetail(lesson._id)" class="btn btn-primary">View Details</button>
               <button class="btn btn-secondary">Messages</button>
             </div>
           </div>
@@ -115,6 +115,20 @@ const filters = ['All', 'Upcoming', 'In Progress', 'Completed', 'Archived']
 const lessons = ref([])
 const loading = ref(true)
 const error = ref(null)
+
+const filteredLessons = computed(() => {
+  return lessons.value.filter(lesson => {
+    const lessonStatus = lesson.status || 'In Progress'
+    const matchesFilter = activeFilter.value === 'All' || lessonStatus === activeFilter.value
+    const matchesSearch = lesson.title.toLowerCase().includes(searchQuery.value.toLowerCase())
+      || (lesson.teacher && lesson.teacher.toLowerCase().includes(searchQuery.value.toLowerCase()))
+    return matchesFilter && matchesSearch
+  })
+})
+
+const viewCourseDetail = (lessonId) => {
+  window.location.href = `/course-detail/${lessonId}`
+}
 
 onMounted(async () => {
   try {
@@ -137,16 +151,6 @@ onMounted(async () => {
   } finally {
     loading.value = false
   }
-})
-
-const filteredLessons = computed(() => {
-  return lessons.value.filter(lesson => {
-    const lessonStatus = lesson.status || 'In Progress'
-    const matchesFilter = activeFilter.value === 'All' || lessonStatus === activeFilter.value
-    const matchesSearch = lesson.title.toLowerCase().includes(searchQuery.value.toLowerCase())
-      || (lesson.instructor && lesson.instructor.toLowerCase().includes(searchQuery.value.toLowerCase()))
-    return matchesFilter && matchesSearch
-  })
 })
 </script>
 
