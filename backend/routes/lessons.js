@@ -19,7 +19,7 @@ router.get("/:id", async (req, res) => {
   try {
     const lesson = await getDB()
       .collection("lessons")
-      .findOne({ _id: new ObjectId(req.params.id) })
+      .findOne({ _id: req.params.id })
     if (!lesson) {
       return res.status(404).json({ message: "Lesson not found" })
     }

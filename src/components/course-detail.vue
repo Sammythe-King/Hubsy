@@ -47,7 +47,7 @@
 
             <!-- Action Buttons -->
             <div class="course-actions">
-              <button class="btn btn-primary">Enroll Now</button>
+              <button @click="goToPayment" class="btn btn-primary">Enroll Now</button>
               <button class="btn btn-secondary">Message Instructor</button>
             </div>
           </div>
@@ -151,16 +151,19 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
 const course = ref(null)
 const loading = ref(true)
 const error = ref(null)
 const activeTab = ref('Overview')
+const route = useRoute()
+const router = useRouter()
 const tabs = ['Overview', 'Schedule', 'Teacher', 'Reviews']
 
 onMounted(async () => {
   try {
-    const lessonId = window.location.pathname.split('/').pop()
+    const lessonId = route.params.id
     loading.value = true
 
     const response = await fetch(`http://localhost:5000/api/lessons/${lessonId}`)
@@ -182,6 +185,12 @@ onMounted(async () => {
 
 const goBack = () => {
   window.history.back()
+}
+
+const goToPayment = () => {
+  if(course.value){
+    router.push(`/payment/${course.value._id}`)
+  }
 }
 </script>
 

@@ -107,7 +107,9 @@
 </template>
 
 <script setup>
+import router from '@/router'
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 
 const activeFilter = ref('All')
 const searchQuery = ref('')
@@ -127,7 +129,8 @@ const filteredLessons = computed(() => {
 })
 
 const viewCourseDetail = (lessonId) => {
-  window.location.href = `/course-detail/${lessonId}`
+  router.push(`/course-detail/${lessonId}`)
+
 }
 
 onMounted(async () => {
