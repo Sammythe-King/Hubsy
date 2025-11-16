@@ -1,7 +1,13 @@
 <script setup>
+import { onMounted } from 'vue';
 import Header from './components/header.vue'
 import MainContent from './components/maincontent.vue'
 import Footer from './components/footer.vue';
+import { loadUser } from './store.js'
+
+onMounted(() => {
+  loadUser()
+})
 
 </script>
 
@@ -9,9 +15,6 @@ import Footer from './components/footer.vue';
   <Header />
   <router-view />
   <Footer />
-
-
-
 </template>
 
 <style >

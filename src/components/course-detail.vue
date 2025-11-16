@@ -47,7 +47,14 @@
 
             <!-- Action Buttons -->
             <div class="course-actions">
-              <button @click="goToPayment" class="btn btn-primary">Enroll Now</button>
+              <button @click="handleAddToCart" class="btn btn-primary" :disabled="!isLoggedIn || isInCart || !hasSpaces">
+
+                <span v-if="!isLoggedIn">Login to Add</span>
+                <span v-else-if="!hasSpaces">Out of Stock</span>
+                <span v-else-if="isInCart">Added to Cart</span>
+                <span v-else>Add to Cart</span>
+
+              </button>
               <button class="btn btn-secondary">Message Instructor</button>
             </div>
           </div>
@@ -86,13 +93,6 @@
               </div>
             </div>
           </div>
-
-          <!-- Free Trial -->
-          <div class="trial-section">
-            <h3 class="trial-title">Try your first session free</h3>
-            <p class="trial-description">Explore this course risk-free. If it's not right for you, we'll provide a full refund.</p>
-            <button class="btn btn-primary">Get Free Trial</button>
-          </div>
         </div>
       </div>
 
@@ -112,15 +112,32 @@
 
         <!-- Tab Content -->
         <div class="tab-content">
+          <!-- 
+            --- THIS IS THE CORRECTED SECTION ---
+          -->
           <div v-if="activeTab === 'Overview'" class="overview-content">
             <h3 class="section-title">Overview</h3>
             <div class="features-grid">
+              
+              <!-- 1. Show Location (if it exists) -->
+              <div v-if="course.location" class="feature-item">
+                <div class="feature-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                </div>
+                <span>Location: {{ course.location }}</span>
+              </div>
+              
+              <!-- 2. Loop over features (if they exist) -->
               <div v-for="feature in course.features" :key="feature" class="feature-item">
                 <div class="feature-icon">✓</div>
+                <!-- 3. Print the 'feature', not 'course.location' -->
                 <span>{{ feature }}</span>
               </div>
+
             </div>
           </div>
+          <!-- --- END OF CORRECTION --- -->
+
 
           <div v-else-if="activeTab === 'Schedule'" class="schedule-content">
             <h3 class="section-title">Schedule</h3>
@@ -150,8 +167,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+// This import is correct
+import { isLoggedIn, cart, addToCart } from "../store.js" 
 
 const course = ref(null)
 const loading = ref(true)
@@ -161,6 +180,19 @@ const route = useRoute()
 const router = useRouter()
 const tabs = ['Overview', 'Schedule', 'Teacher', 'Reviews']
 
+// This function is now correct
+const isInCart = computed(() => {
+  if(!course.value) return false;
+  // .some() checks if any item in the cart array matches this condition
+  return cart.value.some(item => item._id === course.value._id);
+});
+
+// This function is correct
+const hasSpaces = computed(() => {
+  return course.value && course.value.spaces && course.value.spaces > 0;
+});
+
+// This onMounted is correct
 onMounted(async () => {
   try {
     const lessonId = route.params.id
@@ -183,13 +215,15 @@ onMounted(async () => {
   }
 })
 
+// This goBack is correct
 const goBack = () => {
   window.history.back()
 }
 
-const goToPayment = () => {
-  if(course.value){
-    router.push(`/payment/${course.value._id}`)
+// This handleAddToCart is correct
+const handleAddToCart = () => {
+  if (course.value){
+    addToCart(course.value);
   }
 }
 </script>
@@ -535,6 +569,7 @@ const goToPayment = () => {
   border-radius: 50%;
   font-size: 14px;
   font-weight: 700;
+  flex-shrink: 0; /* Prevents icon from shrinking */
 }
 
 /* Schedule Content */
@@ -594,6 +629,15 @@ const goToPayment = () => {
 .btn-secondary:hover {
   background-color: #f5f5f5;
   border-color: #0e0a07;
+}
+
+.btn:disabled {
+  background-color: #c6ccd2;
+  color: #72706B;
+  cursor: not-allowed;
+}
+.btn:disabled:hover {
+  background-color: #c6ccd2;
 }
 
 /* Responsive */

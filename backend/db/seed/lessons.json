@@ -12,6 +12,8 @@
     "students_limit": 18,
     "teacher": "Hip-Hop & Teach Academy",
     "rating": 5.0,
+    "spaces": 5,
+    "location": "5 Labourdonnais St, Port Louis (The Heritage Building)",
     "image": "welcome-class.png",
     "features": ["Live video meetings", "Homework", "Assessments", "Certificate of Completion"],
     "created_at": "2025-11-11T00:00:00.000Z"
@@ -29,6 +31,8 @@
     "students_limit": 20,
     "teacher": "FutureTech Academy",
     "rating": 4.8,
+    "spaces": 0,
+    "location": "Avenue des Palmiers, Moka (University Campus Annex)",
     "image": "stem-class.png",
     "features": ["Lab experiments", "Projects", "Assessments", "Certificate of Completion"],
     "created_at": "2025-11-11T00:00:00.000Z"
@@ -46,6 +50,8 @@
     "students_limit": 15,
     "teacher": "Creative Kids Academy",
     "rating": 4.9,
+    "spaces": 12,
+    "location": "Royal Road, Grand Baie (The North Coast Studio)",
     "image": "arts-crafts.png",
     "features": ["Live video sessions", "Materials included", "Fun assignments", "Certificate of Participation"],
     "created_at": "2025-11-11T00:00:00.000Z"
@@ -63,6 +69,8 @@
     "students_limit": 18,
     "teacher": "CodeSpark Academy",
     "rating": 4.7,
+    "spaces": 1,
+    "location": "St. Paul Avenue, Curepipe (Cyber Hub Center, 2nd Floor)",
     "image": "coding-teens.png",
     "features": ["Live coding sessions", "Project-based learning", "Quizzes & homework", "Certificate of Completion"],
     "created_at": "2025-11-11T00:00:00.000Z"
@@ -80,11 +88,12 @@
     "students_limit": 20,
     "teacher": "Literary Minds Academy",
     "rating": 4.8,
+    "spaces": 0,
+    "location": "Ariel Lane, Quatre Bornes (Municipal Library)",
     "image": "literature-writing.png",
     "features": ["Reading assignments", "Writing workshops", "Peer reviews", "Certificate of Completion"],
     "created_at": "2025-11-11T00:00:00.000Z"
   },
-
   {
     "_id": "64f1e3c8f2d1c4a9a0b1e006",
     "title": "Middle School Robotics",
@@ -98,6 +107,8 @@
     "students_limit": 15,
     "teacher": "RoboKids Academy",
     "rating": 4.9,
+    "spaces": 8,
+    "location": "John Kennedy Ave, Beau Bassin (Tech Hub 401)",
     "image": "robotics-class.png",
     "features": ["Robot building", "Coding lessons", "Competitions", "Certificate of Completion"],
     "created_at": "2025-11-11T00:00:00.000Z"
@@ -115,6 +126,8 @@
     "students_limit": 20,
     "teacher": "MathGenius Academy",
     "rating": 5.0,
+    "spaces": 3,
+    "location": "12 Main St, Rose Hill (The Math Center, Ground Floor)",
     "image": "advanced-math.png",
     "features": ["Live problem-solving", "Homework assignments", "Exam prep", "Certificate of Completion"],
     "created_at": "2025-11-11T00:00:00.000Z"
@@ -132,6 +145,8 @@
     "students_limit": 18,
     "teacher": "Writers’ Workshop Academy",
     "rating": 4.8,
+    "spaces": 0,
+    "location": "Pheonix Road, Vacoas-Phoenix (Creative Arts Hub)",
     "image": "creative-writing.png",
     "features": ["Story exercises", "Peer reviews", "Workshops", "Certificate of Completion"],
     "created_at": "2025-11-11T00:00:00.000Z"
@@ -149,6 +164,8 @@
     "students_limit": 15,
     "teacher": "Little Scientists Academy",
     "rating": 4.9,
+    "spaces": 15,
+    "location": "Coastal Road, Flic en Flac (The Beachside Classroom)",
     "image": "science-explorers.png",
     "features": ["Experiments", "Interactive lessons", "Quizzes", "Certificate of Completion"],
     "created_at": "2025-11-11T00:00:00.000Z"
@@ -166,10 +183,10 @@
     "students_limit": 12,
     "teacher": "Melody Makers Academy",
     "rating": 4.7,
+    "spaces": 6,
+    "location": "Avenue Belle Vue, Tamarin (Music & Arts Academy)",
     "image": "music-lessons.png",
     "features": ["Instrument practice", "Music theory", "Performances", "Certificate of Completion"],
     "created_at": "2025-11-11T00:00:00.000Z"
   }
-
-  
 ]
