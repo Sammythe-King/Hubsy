@@ -28,19 +28,28 @@ export function loadUser() {
 }
 
 export const cart = ref([])
+export const cartItemCount = computed(() => {
+    return cart.value.length
+});
 
-export function addToCart(lesson){
-    const existing = cart.value.find(item => item._id === lesson._id)
-    if(!existing){
-        cart.value.push(lesson)
-        console.log("Store: Added to cart", lesson.title)
-
-    }else{
-        console.log("Store: Item already in cart", lesson.title)
-    }
+// export function removeFromCart(lessonId){
+//     cart.value - cart.value.filter(item._id)
+// }
 
 
-}
+
+// export function addToCart(lesson){
+//     const existing = cart.value.find(item => item._id === lesson._id)
+//     if(!existing){
+//         cart.value.push(lesson)
+//         console.log("Store: Added to cart", lesson.title)
+
+//     }else{
+//         console.log("Store: Item already in cart", lesson.title)
+//     }
+
+
+// }
 export function removeFromCart(lessonId){
     cart.value = cart.value.filter(item => item._id !== lessonId)
     console.log("Store Removed Item", lessonId)
@@ -50,6 +59,32 @@ export function clearCart(){
     console.log("Store: Cart cleared")
 }
 
-export const cartItemCount = computed(() => {
-    return cart.value.length
-});
+
+// Notification function
+export const notification = ref({message: null, type: null }) 
+let notificationTimeout = null
+
+export function showNotification(message, type = 'success', duration = 1000){
+    if (notificationTimeout){
+        clearTimeout(notificationTimeout)
+    }
+
+    notification.value = {message,type}
+
+    notificationTimeout = setTimeout(() => {
+        notification.value = {message: null, type:null}
+    }, duration)
+}
+
+export function addToCart(lesson){
+    const existing = cart.value.find(item => item._id == lesson._id)
+    if(!existing){
+        cart.value.push(lesson)
+        console.log("Store: Added to cart", lesson.title)
+        showNotification(`"${lesson.title}" was added to your cart!`, 'success')
+    }else{
+        console.log("Store: Item already in cart", lesson.title)
+
+        showNotification(`"${lesson.title}"is already in your cart.`, 'info')
+    }
+}

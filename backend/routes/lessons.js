@@ -42,10 +42,26 @@ router.post("/", async (req, res) => {
 // PUT update lesson
 router.put("/:id", async (req, res) => {
   try {
-    const result = await getDB()
-      .collection("lessons")
-      .updateOne({ _id: new ObjectId(req.params.id) }, { $set: req.body })
-    res.json(result)
+    const db = getDB()
+    const lessonId = req.params.id
+    const updateData = req.body
+
+    // This query finds the lesson by its string _id
+    const filter = { _id: lessonId }
+    
+    // This $set command updates only the fields provided in the body
+    // e.g., { $set: { spaces: 9 } }
+    const updateDoc = {
+      $set: updateData,
+    }
+
+    const result = await db.collection("lessons").updateOne(filter, updateDoc)
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ message: "Lesson not found to update" })
+    }
+
+    res.json({ message: "Lesson updated successfully", modifiedCount: result.modifiedCount })
   } catch (err) {
     res.status(400).json({ message: err.message })
   }

@@ -122,7 +122,7 @@ const itemPlans = ref({}) // Stores plan for each item, e.g. { 'lessonId1': 'wee
 
 // Initialize item plans when cart changes
 onMounted(() => {
-  // Pre-fill form with logged-in user's name
+
   if (user.value) {
     checkoutForm.value.name = user.value.name
   }
@@ -210,14 +210,14 @@ const handleSubmitOrder = async () => {
     // --- THIS IS STEP 1: `POST` to /api/orders ---
     // (We will build this backend route in the next step)
     
-    /*
+    
     const response = await fetch('http://localhost:5000/api/orders', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(orderData)
     })
     if (!response.ok) throw new Error('Failed to submit order.')
-    */
+    
 
     // --- THIS IS STEP 2: `PUT` to /api/lessons/:id ---
     // We update the spaces for each item
@@ -225,17 +225,15 @@ const handleSubmitOrder = async () => {
       // In a real app, you'd check how many spaces to subtract.
       // For this coursework, we just update it.
       // We'll assume the PUT route subtracts 1 space
-      /*
+      const newSpaces = item.spaces - 1;
+      
       await fetch(`http://localhost:5000/api/lessons/${item._id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          // This tells the backend to decrease spaces by 1
-          // We'll need to build this logic in the backend
-          $inc: { spaces: -1 } 
-        })
+        body: JSON.stringify({ spaces: newSpaces })
+
       })
-      */
+      
     }
 
     // For now, we'll just simulate success:

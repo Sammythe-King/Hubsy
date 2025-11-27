@@ -24,7 +24,7 @@
         <div class="course-left">
           <!-- Course Image -->
           <div class="course-image-section">
-            <img :src="course.image || '/placeholder.svg?height=400&width=600'" :alt="course.title" class="course-image" />
+            <img :src="`http://localhost:5000/images/${course.image}`" :alt="course.title" class="course-image" />
           </div>
 
           <!-- Course Title & Description -->

@@ -4,62 +4,62 @@
     <header class="lessons-header">
       <div class="header-content">
         <h1 class="header-title">My Lessons</h1>
-        <p class="header-subtitle">Track your enrolled classes and upcoming sessions</p>
+        <p class="header-subtitle">Browse and find the perfect after-school activity.</p>
       </div>
     </header>
 
-    <!-- Filter Tabs -->
-    <div class="filter-tabs-section">
-      <div class="filters-container">
-        <button
-          v-for="filter in filters"
-          :key="filter"
-          @click="activeFilter = filter"
-          class="filter-btn"
-          :class="{ active: activeFilter === filter }"
-        >
-          {{ filter }}
-        </button>
-      </div>
-    </div>
-
-    <!-- Search -->
+    <!-- Search & Sort Section -->
     <div class="search-section">
       <div class="search-container">
+        <!-- Search Input (v-model triggers the search filter instantly) -->
         <input
           v-model="searchQuery"
           type="text"
-          placeholder="Search your lessons..."
+          placeholder="Search lessons by title, location, or teacher..."
           class="search-input"
         />
-        <button class="sort-btn">Sort</button>
+
+        <!-- Sort Control -->
+        <div class="sort-controls">
+          <select v-model="sortAttribute" class="sort-select">
+            <option disabled value="">Sort By</option>
+            <option value="title">Subject</option>
+            <option value="location">Location</option>
+            <option value="price">Price</option>
+            <option value="spaces">Spaces</option>
+          </select>
+          <button @click="toggleSortOrder" class="sort-btn">
+            {{ sortOrder === 'asc' ? '↑ Asc' : '↓ Desc' }}
+          </button>
+        </div>
       </div>
     </div>
 
     <!-- Lessons Grid -->
     <div class="lessons-content">
-      <!-- added loading state -->
+      <!-- Loading State -->
       <div v-if="loading" class="no-results">
         <p>Loading lessons...</p>
       </div>
 
-      <!-- added error state -->
+      <!-- Error State -->
       <div v-else-if="error" class="no-results">
         <p>Error: {{ error }}</p>
       </div>
 
-      <!-- added check for empty array -->
+      <!-- No Results State -->
       <div v-else-if="filteredLessons.length === 0" class="no-results">
-        <p>No lessons found</p>
+        <p>No lessons match your current search or filter criteria.</p>
       </div>
 
       <div v-else class="lessons-grid">
         <div v-for="lesson in filteredLessons" :key="lesson._id" class="lesson-card">
           <!-- Image -->
           <div class="lesson-image-container">
-            <img :src="lesson.image || '/placeholder.svg?height=160&width=320'" :alt="lesson.title" class="lesson-image" />
-            <span class="status-badge" :class="'status-' + (lesson.status || 'In Progress').toLowerCase().replace(' ', '-')">
-              {{ lesson.status || 'In Progress' }}
+            <!-- FIXED: Image source points to the Node server -->
+            <img :src="getImageUrl(lesson.image)" :alt="lesson.title" class="lesson-image" />
+            <span class="status-badge status-available">
+              Spaces: {{ lesson.spaces }}
             </span>
           </div>
 
@@ -71,25 +71,18 @@
             <!-- Lesson Info -->
             <div class="lesson-info">
               <div class="info-item">
-                <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <polyline points="12 6 12 12 16 14"></polyline>
-                </svg>
-                <span>{{ lesson.sessions_per_week }}x/week</span>
+                <!-- Price -->
+                <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                <span>${{ lesson.price }}/session</span>
               </div>
               <div class="info-item">
-                <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="12" cy="12" r="1"></circle>
-                  <circle cx="19" cy="12" r="1"></circle>
-                  <circle cx="5" cy="12" r="1"></circle>
-                </svg>
-                <span>{{ lesson.duration_weeks }} weeks</span>
+                <!-- Location -->
+                <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                <span>{{ lesson.location }}</span>
               </div>
               <div class="info-item">
-                <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="12" cy="7" r="4"></circle>
-                </svg>
+                <!-- Teacher -->
+                <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                 <span>{{ lesson.teacher }}</span>
               </div>
             </div>
@@ -97,7 +90,6 @@
             <!-- Buttons -->
             <div class="lesson-buttons">
               <button @click="viewCourseDetail(lesson._id)" class="btn btn-primary">View Details</button>
-              <button class="btn btn-secondary">Messages</button>
             </div>
           </div>
         </div>
@@ -107,49 +99,97 @@
 </template>
 
 <script setup>
-import router from '@/router'
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
-const activeFilter = ref('All')
-const searchQuery = ref('')
-const filters = ['All', 'Upcoming', 'In Progress', 'Completed', 'Archived']
+const router = useRouter()
 const lessons = ref([])
 const loading = ref(true)
 const error = ref(null)
 
+// --- SEARCH & SORT STATE ---
+const searchQuery = ref('')
+const sortAttribute = ref('title')
+const sortOrder = ref('asc') // 'asc' or 'desc'
+// --- END STATE ---
+
+/**
+ * Helper function to construct the full image URL from the Node server
+ */
+const getImageUrl = (imageName) => {
+  return `http://localhost:5000/images/${imageName}`
+}
+
+/**
+ * Core logic for filtering and sorting the lessons (Frontend-Only Search)
+ */
 const filteredLessons = computed(() => {
-  return lessons.value.filter(lesson => {
-    const lessonStatus = lesson.status || 'In Progress'
-    const matchesFilter = activeFilter.value === 'All' || lessonStatus === activeFilter.value
-    const matchesSearch = lesson.title.toLowerCase().includes(searchQuery.value.toLowerCase())
-      || (lesson.teacher && lesson.teacher.toLowerCase().includes(searchQuery.value.toLowerCase()))
-    return matchesFilter && matchesSearch
-  })
+  let displayedLessons = lessons.value
+
+  // 1. SEARCH FILTER (Frontend Requirement)
+  if (searchQuery.value) {
+    const query = searchQuery.value.toLowerCase()
+    displayedLessons = displayedLessons.filter(lesson => 
+      lesson.title.toLowerCase().includes(query) ||
+      lesson.location.toLowerCase().includes(query) ||
+      lesson.teacher.toLowerCase().includes(query) ||
+      lesson.price.toString().includes(query)
+    )
+  }
+
+  // 2. SORTING (Frontend Requirement)
+  if (sortAttribute.value) {
+    displayedLessons.sort((a, b) => {
+      let valA = a[sortAttribute.value]
+      let valB = b[sortAttribute.value]
+
+      // Handle strings (Subject, Location)
+      if (typeof valA === 'string') {
+        valA = valA.toLowerCase()
+        valB = valB.toLowerCase()
+      }
+
+      // Perform comparison
+      let comparison = 0
+      if (valA > valB) {
+        comparison = 1
+      } else if (valA < valB) {
+        comparison = -1
+      }
+      
+      // Apply ascending or descending order
+      return sortOrder.value === 'asc' ? comparison : comparison * -1
+    })
+  }
+
+  return displayedLessons
 })
+
+/**
+ * Toggles the sort direction.
+ */
+const toggleSortOrder = () => {
+  sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc'
+}
 
 const viewCourseDetail = (lessonId) => {
   router.push(`/course-detail/${lessonId}`)
-
 }
 
 onMounted(async () => {
   try {
     loading.value = true
-    console.log("[v0] Fetching lessons from http://localhost:5000/api/lessons")
     const response = await fetch('http://localhost:5000/api/lessons')
-    console.log("[v0] Response status:", response.status)
     
     if (!response.ok) {
       throw new Error(`API error: ${response.status}`)
     }
     
     const data = await response.json()
-    console.log("[v0] Fetched lessons:", data)
     lessons.value = data
     error.value = null
   } catch (err) {
-    console.error("[v0] Error fetching lessons:", err.message)
+    console.error("Error fetching lessons:", err.message)
     error.value = err.message
   } finally {
     loading.value = false
@@ -158,6 +198,9 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+/*
+  Note: Removed the unused filter tabs styles to clean up the code.
+*/
 * {
   margin: 0;
   padding: 0;
@@ -167,6 +210,7 @@ onMounted(async () => {
 .lessons-container {
   min-height: 100vh;
   background-color: #fefefe;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
 /* Header */
@@ -192,44 +236,6 @@ onMounted(async () => {
   font-size: 14px;
   color: #72706b;
   margin-top: 4px;
-}
-
-/* Filter Tabs */
-.filter-tabs-section {
-  border-bottom: 1px solid #c6ccd2;
-  background-color: #fefefe;
-}
-
-.filters-container {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 16px;
-  display: flex;
-  gap: 12px;
-  overflow-x: auto;
-}
-
-.filter-btn {
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-weight: 500;
-  border: 1px solid #c6ccd2;
-  background-color: #f5f5f5;
-  color: #393833;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.2s;
-  font-size: 14px;
-}
-
-.filter-btn:hover {
-  border-color: #0e0a07;
-}
-
-.filter-btn.active {
-  background-color: #0e0a07;
-  color: #fefefe;
-  border-color: #0e0a07;
 }
 
 /* Search Section */
@@ -268,16 +274,45 @@ onMounted(async () => {
   border-color: #0e0a07;
 }
 
+/* Sort Controls */
+.sort-controls {
+  display: flex;
+  gap: 0;
+  align-items: center;
+}
+
+.sort-select {
+  padding: 10px 12px;
+  border: 1px solid #c6ccd2;
+  border-right: none;
+  border-radius: 8px 0 0 8px;
+  font-size: 14px;
+  color: #0e0a07;
+  background-color: #fefefe;
+  cursor: pointer;
+  appearance: none; /* Hide default arrow */
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23393833' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 1em;
+  padding-right: 28px;
+}
+.sort-select:focus {
+  outline: none;
+  border-color: #0e0a07;
+}
+
 .sort-btn {
   padding: 10px 16px;
   background-color: #0e0a07;
   color: #fefefe;
   border: none;
-  border-radius: 8px;
+  border-radius: 0 8px 8px 0;
   font-weight: 500;
   cursor: pointer;
   font-size: 14px;
   transition: background-color 0.2s;
+  white-space: nowrap;
 }
 
 .sort-btn:hover {
@@ -341,25 +376,7 @@ onMounted(async () => {
   font-size: 12px;
   font-weight: 600;
   text-transform: capitalize;
-}
-
-.status-upcoming {
-  background-color: #0e0a07;
-  color: #fefefe;
-}
-
-.status-in-progress {
-  background-color: #72706b;
-  color: #fefefe;
-}
-
-.status-completed {
-  background-color: #c6ccd2;
-  color: #393833;
-}
-
-.status-archived {
-  background-color: #393833;
+  background-color: #d40303; 
   color: #fefefe;
 }
 
@@ -466,10 +483,22 @@ onMounted(async () => {
 
   .search-container {
     flex-direction: column;
+    align-items: stretch;
   }
-
-  .sort-btn {
+  .search-input {
     width: 100%;
+  }
+  .sort-controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .sort-select, .sort-btn {
+    flex: 1;
+    border-radius: 8px;
+  }
+  .sort-select {
+    border-right: 1px solid #c6ccd2;
+    border-radius: 8px;
   }
 }
 </style>
