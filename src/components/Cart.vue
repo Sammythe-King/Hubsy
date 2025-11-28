@@ -211,7 +211,7 @@ const handleSubmitOrder = async () => {
     // (We will build this backend route in the next step)
     
     
-    const response = await fetch('http://localhost:5000/api/orders', {
+    const response = await fetch('https://hubsy.onrender.com/api/orders', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(orderData)
@@ -227,7 +227,7 @@ const handleSubmitOrder = async () => {
       // We'll assume the PUT route subtracts 1 space
       const newSpaces = item.spaces - 1;
       
-      await fetch(`http://localhost:5000/api/lessons/${item._id}`, {
+      await fetch(`https://hubsy.onrender.com/api/lessons/${item._id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ spaces: newSpaces })
