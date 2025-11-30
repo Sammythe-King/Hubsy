@@ -24,7 +24,12 @@
         <div class="course-left">
           <!-- Course Image -->
           <div class="course-image-section">
-            <img :src="`https://hubsy.onrender.com/images/${course.image}`" :alt="course.title" class="course-image" />
+            <img 
+              :src="getImageUrl(course.image)" 
+              @error="$event.target.src = 'https://placehold.co/600x400?text=No+Image'"
+              :alt="course.title" 
+              class="course-image" 
+            />
           </div>
 
           <!-- Course Title & Description -->
@@ -34,7 +39,7 @@
 
             <!-- Instructor Info -->
             <div class="instructor-section">
-              <div class="instructor-avatar">{{ course.teacher.charAt(0) }}</div>
+              <div class="instructor-avatar">{{ course.teacher ? course.teacher.charAt(0) : '?' }}</div>
               <div class="instructor-details">
                 <p class="instructor-name">{{ course.teacher }}</p>
                 <div class="instructor-rating">
@@ -128,7 +133,7 @@
               </div>
               
               <!-- 2. Loop over features (if they exist) -->
-              <div v-for="feature in course.features" :key="feature" class="feature-item">
+              <div v-if="course.features && course.features.length" v-for="feature in course.features" :key="feature" class="feature-item">
                 <div class="feature-icon">✓</div>
                 <!-- 3. Print the 'feature', not 'course.location' -->
                 <span>{{ feature }}</span>
@@ -191,6 +196,11 @@ const isInCart = computed(() => {
 const hasSpaces = computed(() => {
   return course.value && course.value.spaces && course.value.spaces > 0;
 });
+
+const getImageUrl = (imageName) => {
+  if (!imageName) return 'https://placehold.co/600x400?text=No+Image';
+  return `https://hubsy.onrender.com/images/${imageName}`;
+}
 
 // This onMounted is correct
 onMounted(async () => {
