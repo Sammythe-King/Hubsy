@@ -11,7 +11,7 @@
     <!-- Search & Sort Section -->
     <div class="search-section">
       <div class="search-container">
-        <!-- Search Input -->
+        <!-- Search Input (v-model triggers the search filter instantly) -->
         <input
           v-model="searchQuery"
           type="text"
@@ -56,13 +56,8 @@
         <div v-for="lesson in filteredLessons" :key="lesson._id" class="lesson-card">
           <!-- Image -->
           <div class="lesson-image-container">
-            <!-- FIXED: Image source logic -->
-            <img 
-              :src="getImageUrl(lesson.image)" 
-              @error="$event.target.src = 'https://placehold.co/600x400?text=No+Image'"
-              :alt="lesson.title" 
-              class="lesson-image" 
-            />
+            <!-- FIXED: Image source points to the Node server -->
+            <img :src="getImageUrl(lesson.image)" :alt="lesson.title" class="lesson-image" />
             <span class="status-badge status-available">
               Spaces: {{ lesson.spaces }}
             </span>
@@ -122,9 +117,7 @@ const sortOrder = ref('asc') // 'asc' or 'desc'
  * Helper function to construct the full image URL from the Node server
  */
 const getImageUrl = (imageName) => {
-  // Use the Render URL. If imageName is missing, return a placeholder.
-  if (!imageName) return 'https://placehold.co/600x400?text=No+Image';
-  return `https://hubsy.onrender.com/images/${imageName}`;
+  return `https://hubsy.onrender.com/images/${imageName}`
 }
 
 /**
@@ -180,15 +173,12 @@ const toggleSortOrder = () => {
 }
 
 const viewCourseDetail = (lessonId) => {
-  // Ensure we are passing the ID correctly
-  console.log("Navigating to lesson:", lessonId);
   router.push(`/course-detail/${lessonId}`)
 }
 
 onMounted(async () => {
   try {
     loading.value = true
-    // Fetch from your live Render backend
     const response = await fetch('https://hubsy.onrender.com/api/lessons')
     
     if (!response.ok) {
