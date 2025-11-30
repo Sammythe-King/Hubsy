@@ -171,7 +171,7 @@ onMounted(async () => {
   try {
     const lessonId = route.params.id
     loading.value = true
-    const response = await fetch(`https://hubsy.onrender.com/api/lessons/${lessonId}`)
+    const response = await fetch(`http://localhost:5000/api/lessons/${lessonId}`)
     
     if (!response.ok) {
       throw new Error(`Course not found: ${response.status}`)

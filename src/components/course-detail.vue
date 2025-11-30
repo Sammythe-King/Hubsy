@@ -24,7 +24,7 @@
         <div class="course-left">
           <!-- Course Image -->
           <div class="course-image-section">
-            <img :src="`https://hubsy.onrender.com/images/${course.image}`" :alt="course.title" class="course-image" />
+            <img :src="`http://localhost:5000/images/${course.image}`" :alt="course.title" class="course-image" />
           </div>
 
           <!-- Course Title & Description -->
@@ -198,7 +198,7 @@ onMounted(async () => {
     const lessonId = route.params.id
     loading.value = true
 
-    const response = await fetch(`https://hubsy.onrender.com/api/lessons/${lessonId}`)
+    const response = await fetch(`http://localhost:5000/api/lessons/${lessonId}`)
 
     if (!response.ok) {
       throw new Error(`Course not found: ${response.status}`)

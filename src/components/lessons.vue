@@ -117,7 +117,7 @@ const sortOrder = ref('asc') // 'asc' or 'desc'
  * Helper function to construct the full image URL from the Node server
  */
 const getImageUrl = (imageName) => {
-  return `https://hubsy.onrender.com/images/${imageName}`
+  return `http://localhost:5000/images/${imageName}`
 }
 
 /**
@@ -179,7 +179,7 @@ const viewCourseDetail = (lessonId) => {
 onMounted(async () => {
   try {
     loading.value = true
-    const response = await fetch('https://hubsy.onrender.com/api/lessons')
+    const response = await fetch('http://localhost:5000/api/lessons')
     
     if (!response.ok) {
       throw new Error(`API error: ${response.status}`)
