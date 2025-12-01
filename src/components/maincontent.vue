@@ -48,7 +48,7 @@ import learn from '@/assets/library.png'
 
 // ======= Hero section =======
 const hero = ref({
-  title: 'Welcome to Hubsy!',
+  title: 'Welcome to ubsy!',
   text: 'Your all-in-one Hub for After-School Learning',
   backgroundImage: '@/assets/hero-bg.jpg' // change to your image
 })
