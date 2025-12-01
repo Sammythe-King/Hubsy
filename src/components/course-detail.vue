@@ -24,7 +24,12 @@
         <div class="course-left">
           <!-- Course Image -->
           <div class="course-image-section">
-            <img :src="`http://localhost:5000/images/${course.image}`" :alt="course.title" class="course-image" />
+            <img 
+              :src="getImageUrl(course.image)" 
+              @error="$event.target.src = 'https://placehold.co/600x400?text=No+Image'"
+              :alt="course.title" 
+              class="course-image" 
+            />
           </div>
 
           <!-- Course Title & Description -->
@@ -192,6 +197,12 @@ const hasSpaces = computed(() => {
   return course.value && course.value.spaces && course.value.spaces > 0;
 });
 
+const getImageUrl = (imageName) => {
+  if(!imageName) return 'https://placehold.co/600x400?text=No+Image';
+  return `https://hubsy.onrender.com/images/${imageName}`;
+
+
+}
 // This onMounted is correct
 onMounted(async () => {
   try {

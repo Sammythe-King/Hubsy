@@ -11,7 +11,7 @@
     <!-- Search & Sort Section -->
     <div class="search-section">
       <div class="search-container">
-        <!-- Search Input (v-model triggers the search filter instantly) -->
+        <!-- Search Input -->
         <input
           v-model="searchQuery"
           type="text"
@@ -19,7 +19,7 @@
           class="search-input"
         />
 
-        <!-- Sort Control -->
+        <!-- Sort Controls -->
         <div class="sort-controls">
           <select v-model="sortAttribute" class="sort-select">
             <option disabled value="">Sort By</option>
@@ -52,18 +52,24 @@
         <p>No lessons match your current search or filter criteria.</p>
       </div>
 
+      <!-- Grid of Lesson Cards -->
       <div v-else class="lessons-grid">
         <div v-for="lesson in filteredLessons" :key="lesson._id" class="lesson-card">
-          <!-- Image -->
+          
+          <!-- Image Container -->
           <div class="lesson-image-container">
-            <!-- FIXED: Image source points to the Node server -->
-            <img :src="getImageUrl(lesson.image)" :alt="lesson.title" class="lesson-image" />
-            <span class="status-badge status-available">
+            <img 
+              :src="getImageUrl(lesson.image)" 
+              @error="$event.target.src = 'https://placehold.co/600x400?text=No+Image'"
+              :alt="lesson.title" 
+              class="lesson-image" 
+            />
+            <span class="status-badge" :class="lesson.spaces > 0 ? 'status-available' : 'status-full'">
               Spaces: {{ lesson.spaces }}
             </span>
           </div>
 
-          <!-- Content -->
+          <!-- Card Body -->
           <div class="lesson-body">
             <h3 class="lesson-title">{{ lesson.title }}</h3>
             <p class="lesson-description">{{ lesson.description }}</p>
@@ -71,17 +77,14 @@
             <!-- Lesson Info -->
             <div class="lesson-info">
               <div class="info-item">
-                <!-- Price -->
                 <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
                 <span>${{ lesson.price }}/session</span>
               </div>
               <div class="info-item">
-                <!-- Location -->
                 <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
                 <span>{{ lesson.location }}</span>
               </div>
               <div class="info-item">
-                <!-- Teacher -->
                 <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                 <span>{{ lesson.teacher }}</span>
               </div>
@@ -89,7 +92,18 @@
 
             <!-- Buttons -->
             <div class="lesson-buttons">
-              <button @click="viewCourseDetail(lesson._id)" class="btn btn-primary">View Details</button>
+              <button @click="viewCourseDetail(lesson._id)" class="btn btn-primary">Details</button>
+              
+              <button 
+                @click="handleAddToCart(lesson)" 
+                class="btn btn-secondary"
+                :disabled="!isLoggedIn || lesson.spaces <= 0 || isLessonInCart(lesson._id)"
+              >
+                <span v-if="!isLoggedIn">Login</span>
+                <span v-else-if="lesson.spaces <= 0">Full</span>
+                <span v-else-if="isLessonInCart(lesson._id)">Added</span>
+                <span v-else>+ Cart</span>
+              </button>
             </div>
           </div>
         </div>
@@ -101,32 +115,33 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { isLoggedIn, cart, addToCart } from '../store.js'
 
 const router = useRouter()
 const lessons = ref([])
 const loading = ref(true)
 const error = ref(null)
 
-// --- SEARCH & SORT STATE ---
 const searchQuery = ref('')
 const sortAttribute = ref('title')
-const sortOrder = ref('asc') // 'asc' or 'desc'
-// --- END STATE ---
+const sortOrder = ref('asc')
 
-/**
- * Helper function to construct the full image URL from the Node server
- */
 const getImageUrl = (imageName) => {
-  return `http://localhost:5000/images/${imageName}`
+  if (!imageName) return 'https://placehold.co/600x400?text=No+Image';
+  return `https://hubsy.onrender.com/images/${imageName}`;
 }
 
-/**
- * Core logic for filtering and sorting the lessons (Frontend-Only Search)
- */
+const isLessonInCart = (lessonId) => {
+  return cart.value.some(item => item._id === lessonId)
+}
+
+const handleAddToCart = (lesson) => {
+  addToCart(lesson)
+}
+
 const filteredLessons = computed(() => {
   let displayedLessons = lessons.value
 
-  // 1. SEARCH FILTER (Frontend Requirement)
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase()
     displayedLessons = displayedLessons.filter(lesson => 
@@ -137,27 +152,20 @@ const filteredLessons = computed(() => {
     )
   }
 
-  // 2. SORTING (Frontend Requirement)
   if (sortAttribute.value) {
     displayedLessons.sort((a, b) => {
       let valA = a[sortAttribute.value]
       let valB = b[sortAttribute.value]
 
-      // Handle strings (Subject, Location)
       if (typeof valA === 'string') {
         valA = valA.toLowerCase()
         valB = valB.toLowerCase()
       }
 
-      // Perform comparison
       let comparison = 0
-      if (valA > valB) {
-        comparison = 1
-      } else if (valA < valB) {
-        comparison = -1
-      }
+      if (valA > valB) comparison = 1
+      else if (valA < valB) comparison = -1
       
-      // Apply ascending or descending order
       return sortOrder.value === 'asc' ? comparison : comparison * -1
     })
   }
@@ -165,9 +173,6 @@ const filteredLessons = computed(() => {
   return displayedLessons
 })
 
-/**
- * Toggles the sort direction.
- */
 const toggleSortOrder = () => {
   sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc'
 }
@@ -179,7 +184,7 @@ const viewCourseDetail = (lessonId) => {
 onMounted(async () => {
   try {
     loading.value = true
-    const response = await fetch('http://localhost:5000/api/lessons')
+    const response = await fetch('https://hubsy.onrender.com/api/lessons')
     
     if (!response.ok) {
       throw new Error(`API error: ${response.status}`)
@@ -198,22 +203,14 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-/*
-  Note: Removed the unused filter tabs styles to clean up the code.
-*/
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
 .lessons-container {
   min-height: 100vh;
   background-color: #fefefe;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-family: system-ui, -apple-system, sans-serif;
 }
 
-/* Header */
 .lessons-header {
   border-bottom: 1px solid #c6ccd2;
   background-color: #fefefe;
@@ -238,7 +235,6 @@ onMounted(async () => {
   margin-top: 4px;
 }
 
-/* Search Section */
 .search-section {
   border-bottom: 1px solid #c6ccd2;
   background-color: #fefefe;
@@ -264,17 +260,11 @@ onMounted(async () => {
   background-color: #fefefe;
 }
 
-.search-input::placeholder {
-  color: #72706b;
-  opacity: 0.7;
-}
-
 .search-input:focus {
   outline: none;
   border-color: #0e0a07;
 }
 
-/* Sort Controls */
 .sort-controls {
   display: flex;
   gap: 0;
@@ -290,13 +280,14 @@ onMounted(async () => {
   color: #0e0a07;
   background-color: #fefefe;
   cursor: pointer;
-  appearance: none; /* Hide default arrow */
+  appearance: none;
   background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23393833' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
   background-repeat: no-repeat;
   background-position: right 8px center;
   background-size: 1em;
   padding-right: 28px;
 }
+
 .sort-select:focus {
   outline: none;
   border-color: #0e0a07;
@@ -319,7 +310,6 @@ onMounted(async () => {
   background-color: #393833;
 }
 
-/* Lessons Content */
 .lessons-content {
   max-width: 1280px;
   margin: 0 auto;
@@ -333,20 +323,20 @@ onMounted(async () => {
   font-size: 18px;
 }
 
-/* Lessons Grid */
 .lessons-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 24px;
 }
 
-/* Lesson Card */
 .lesson-card {
   border: 1px solid #c6ccd2;
   border-radius: 8px;
   overflow: hidden;
   background-color: #fefefe;
   transition: box-shadow 0.3s;
+  display: flex;
+  flex-direction: column;
 }
 
 .lesson-card:hover {
@@ -376,16 +366,24 @@ onMounted(async () => {
   font-size: 12px;
   font-weight: 600;
   text-transform: capitalize;
-  background-color: #d40303; 
+}
+
+.status-available {
+  background-color: #c0392b;
   color: #fefefe;
 }
 
-/* Lesson Body */
+.status-full {
+  background-color: #72706b;
+  color: #fefefe;
+}
+
 .lesson-body {
   padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 12px;
+  flex: 1;
 }
 
 .lesson-title {
@@ -409,13 +407,13 @@ onMounted(async () => {
   overflow: hidden;
 }
 
-/* Lesson Info */
 .lesson-info {
   display: flex;
   flex-direction: column;
   gap: 8px;
   font-size: 13px;
   color: #393833;
+  margin-top: auto;
 }
 
 .info-item {
@@ -431,11 +429,10 @@ onMounted(async () => {
   stroke: currentColor;
 }
 
-/* Buttons */
 .lesson-buttons {
   display: flex;
-  gap: 12px;
-  margin-top: 8px;
+  gap: 10px;
+  margin-top: 12px;
 }
 
 .btn {
@@ -447,6 +444,7 @@ onMounted(async () => {
   font-size: 13px;
   cursor: pointer;
   transition: all 0.2s;
+  white-space: nowrap;
 }
 
 .btn-primary {
@@ -461,26 +459,26 @@ onMounted(async () => {
 }
 
 .btn-secondary {
-  background-color: #fefefe;
+  background-color: #f0c419;
   color: #0e0a07;
   border: 1px solid #c6ccd2;
 }
 
 .btn-secondary:hover {
-  background-color: #f5f5f5;
-  border-color: #72706b;
+  background-color: #dcb317;
 }
 
-/* Responsive */
+.btn:disabled {
+  background-color: #c6ccd2;
+  color: #72706b;
+  cursor: not-allowed;
+  border-color: #c6ccd2;
+}
+
 @media (max-width: 768px) {
   .lessons-grid {
     grid-template-columns: 1fr;
   }
-
-  .header-title {
-    font-size: 24px;
-  }
-
   .search-container {
     flex-direction: column;
     align-items: stretch;
